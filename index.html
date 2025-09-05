@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TimeTracker Mobile</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TimeTracker">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM2NjdlZWEiLz4KPHRleHQgeD0iOTYiIHk9IjEyMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjgwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+VsDwvdGV4dD4KPC9zdmc+">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM2NjdlZWEiLz4KPHRleHQgeD0iOTYiIHk9IjEyMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjgwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+VsDwvdGV4dD4KPC9zdmc+">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #333;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .user-role {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .role-selector {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .role-btn {
+            padding: 20px;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .role-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .employee-section, .supervisor-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #4a5568;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .time-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .current-time {
+            font-size: 2.5rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .current-date {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .action-btn {
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .check-in {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .check-out {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .notification-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .notification {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification.new {
+            animation: slideIn 0.5s ease;
+            border-left-color: #48bb78;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .recent-entries {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .entry-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .status-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 15px;
+            }
+            
+            .current-time {
+                font-size: 2rem;
+            }
+        }
+
+        /* Installation prompt styles */
+        .install-prompt {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .install-prompt:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>⏰ TimeTracker Mobile</h1>
+            <div class="user-role" id="userRoleDisplay">Select Role</div>
+        </div>
+
+        <div class="content">
+            <!-- Install Prompt -->
+            <div class="install-prompt" id="installPrompt" onclick="installApp()" style="display: none;">
+                📱 Install App - Add to Home Screen for better experience!
+            </div>
+
+            <!-- Role Selection -->
+            <div class="role-selector" id="roleSelector">
+                <h2>Choose Your Role</h2>
+                <div class="role-buttons">
+                    <div class="role-btn" onclick="selectRole('employee')">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">👤</div>
+                        <div>Employee</div>
+                        <div style="font-size: 0.8rem; color: #718096; margin-top: 5px;">Check in/out & send notifications</div>
+                    </div>
+                    <div class="role-btn" onclick="selectRole('supervisor')">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">👨‍💼</div>
+                        <div>Supervisor</div>
+                        <div style="font-size: 0.8rem; color: #718096; margin-top: 5px;">Receive notifications & monitor</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employee Section -->
+            <div class="employee-section hidden" id="employeeSection">
+                <div class="section-title">Employee Dashboard</div>
+                
+                <div class="time-display">
+                    <div class="current-time" id="currentTime"></div>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+
+                <form id="employeeForm">
+                    <div class="form-group">
+                        <label for="employeeName">Your Name</label>
+                        <input type="text" id="employeeName" required placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employeeId">Employee ID</label>
+                        <input type="text" id="employeeId" placeholder="Enter your ID">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supervisorId">Supervisor ID</label>
+                        <input type="text" id="supervisorId" required placeholder="Enter supervisor's ID">
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="action-btn check-in" onclick="recordTime('checkin')">
+                            ✓ Check In
+                        </button>
+                        <button type="button" class="action-btn check-out" onclick="recordTime('checkout')">
+                            ✗ Check Out
+                        </button>
+                    </div>
+                </form>
+
+                <div id="employeeStatus" class="status-message"></div>
+
+                <div class="recent-entries">
+                    <h4>Your Recent Entries</h4>
+                    <div id="employeeEntries"></div>
+                </div>
+            </div>
+
+            <!-- Supervisor Section -->
+            <div class="supervisor-section hidden" id="supervisorSection">
+                <div class="section-title">Supervisor Dashboard</div>
+                
+                <div class="form-group">
+                    <label for="supervisorName">Your Name</label>
+                    <input type="text" id="supervisorName" required placeholder="Enter your name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="supervisorIdField">Your Supervisor ID</label>
+                    <input type="text" id="supervisorIdField" required placeholder="Enter your supervisor ID">
+                </div>
+
+                <div class="notification-area">
+                    <h4>Notifications <span id="notificationBadge" class="notification-badge" style="display: none;">0</span></h4>
+                    <div id="notifications"></div>
+                </div>
+
+                <div class="recent-entries">
+                    <h4>All Employee Entries</h4>
+                    <div id="supervisorEntries"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab" onclick="showRoleSelector()" title="Change Role">
+            ⚙️
+        </button>
+    </div>
+
+    <script>
+        // App state
+        let currentRole = null;
+        let timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]');
+        let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+        let deferredPrompt;
+
+        // PWA Installation
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'block';
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installPrompt').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // Time display
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour12: true,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const timeElement = document.getElementById('currentTime');
+            const dateElement = document.getElementById('currentDate');
+            if (timeElement) timeElement.textContent = timeString;
+            if (dateElement) dateElement.textContent = dateString;
+        }
+
+        // Initialize time display
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+
+        // Role selection
+        function selectRole(role) {
+            currentRole = role;
+            localStorage.setItem('userRole', role);
+            
+            document.getElementById('roleSelector').classList.add('hidden');
+            document.getElementById('userRoleDisplay').textContent = role === 'employee' ? '👤 Employee' : '👨‍💼 Supervisor';
+            
+            if (role === 'employee') {
+                document.getElementById('employeeSection').classList.remove('hidden');
+                document.getElementById('supervisorSection').classList.add('hidden');
+                restoreEmployeeData();
+                updateEmployeeEntries();
+            } else {
+                document.getElementById('supervisorSection').classList.remove('hidden');
+                document.getElementById('employeeSection').classList.add('hidden');
+                restoreSupervisorData();
+                updateNotifications();
+                updateSupervisorEntries();
+            }
+        }
+
+        function showRoleSelector() {
+            document.getElementById('roleSelector').classList.remove('hidden');
+            document.getElementById('employeeSection').classList.add('hidden');
+            document.getElementById('supervisorSection').classList.add('hidden');
+            document.getElementById('userRoleDisplay').textContent = 'Select Role';
+        }
+
+        // Employee functions
+        function recordTime(action) {
+            const employeeName = document.getElementById('employeeName').value.trim();
+            const employeeId = document.getElementById('employeeId').value.trim();
+            const supervisorId = document.getElementById('supervisorId').value.trim();
+            
+            if (!employeeName || !supervisorId) {
+                showMessage('Please fill in your name and supervisor ID', 'error', 'employeeStatus');
+                return;
+            }
+
+            const now = new Date();
+            const entry = {
+                id: Date.now(),
+                employeeName: employeeName,
+                employeeId: employeeId || 'N/A',
+                supervisorId: supervisorId,
+                action: action,
+                timestamp: now.toISOString(),
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString(),
+                dateTime: now.toLocaleString()
+            };
+
+            // Store entry
+            timeEntries.unshift(entry);
+            timeEntries = timeEntries.slice(0, 100);
+            localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+
+            // Create notification for supervisor
+            const notification = {
+                id: Date.now(),
+                employeeName: employeeName,
+                employeeId: employeeId,
+                supervisorId: supervisorId,
+                action: action,
+                timestamp: now.toISOString(),
+                dateTime: now.toLocaleString(),
+                read: false
+            };
+
+            notifications.unshift(notification);
+            notifications = notifications.slice(0, 50);
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+
+            // Show success message
+            const actionText = action === 'checkin' ? 'checked in' : 'checked out';
+            showMessage(`✅ Successfully ${actionText} at ${entry.time}! Supervisor notified.`, 'success', 'employeeStatus');
+
+            // Update displays
+            updateEmployeeEntries();
+            
+            // Haptic feedback (if supported)
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+
+            // Save form data
+            saveEmployeeData();
+        }
+
+        function updateEmployeeEntries() {
+            const container = document.getElementById('employeeEntries');
+            const userEntries = timeEntries.slice(0, 10);
+            
+            if (userEntries.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">No entries yet</div>';
+                return;
+            }
+
+            container.innerHTML = userEntries.map(entry => `
+                <div class="entry-item">
+                    <div>
+                        <div style="font-weight: 600;">${entry.employeeName}</div>
+                        <div style="color: ${entry.action === 'checkin' ? '#38a169' : '#dd6b20'}; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">
+                            ${entry.action}
+                        </div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.9rem; color: #718096;">
+                        ${entry.date}<br>
+                        ${entry.time}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Supervisor functions
+        function updateNotifications() {
+            const supervisorId = document.getElementById('supervisorIdField').value.trim();
+            const container = document.getElementById('notifications');
+            const badge = document.getElementById('notificationBadge');
+            
+            if (!supervisorId) {
+                container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">Enter your Supervisor ID to see notifications</div>';
+                return;
+            }
+
+            const supervisorNotifications = notifications.filter(n => n.supervisorId === supervisorId);
+            const unreadCount = supervisorNotifications.filter(n => !n.read).length;
+            
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+            
+            if (supervisorNotifications.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">No notifications yet</div>';
+                return;
+            }
+
+            container.innerHTML = supervisorNotifications.slice(0, 10).map(notification => `
+                <div class="notification ${!notification.read ? 'new' : ''}" onclick="markAsRead(${notification.id})">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-weight: 600;">${notification.employeeName} ${notification.action === 'checkin' ? 'Checked In' : 'Checked Out'}</div>
+                            <div style="font-size: 0.9rem; color: #718096;">ID: ${notification.employeeId}</div>
+                            <div style="font-size: 0.8rem; color: #718096; margin-top: 5px;">${notification.dateTime}</div>
+                        </div>
+                        ${!notification.read ? '<div style="width: 10px; height: 10px; background: #48bb78; border-radius: 50%; margin-top: 5px;"></div>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function markAsRead(notificationId) {
+            notifications = notifications.map(n => 
+                n.id === notificationId ? {...n, read: true} : n
+            );
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            updateNotifications();
+        }
+
+        function updateSupervisorEntries() {
+            const supervisorId = document.getElementById('supervisorIdField').value.trim();
+            const container = document.getElementById('supervisorEntries');
+            
+            if (!supervisorId) {
+                container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">Enter your Supervisor ID to see employee entries</div>';
+                return;
+            }
+
+            const supervisorEntries = timeEntries.filter(e => e.supervisorId === supervisorId).slice(0, 20);
+            
+            if (supervisorEntries.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">No employee entries yet</div>';
+                return;
+            }
+
+            container.innerHTML = supervisorEntries.map(entry => `
+                <div class="entry-item">
+                    <div>
+                        <div style="font-weight: 600;">${entry.employeeName}</div>
+                        <div style="color: ${entry.action === 'checkin' ? '#38a169' : '#dd6b20'}; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">
+                            ${entry.action}
+                        </div>
+                        <div style="font-size: 0.8rem; color: #718096;">ID: ${entry.employeeId}</div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.9rem; color: #718096;">
+                        ${entry.date}<br>
+                        ${entry.time}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Utility functions
+        function showMessage(message, type, elementId) {
+            const statusElement = document.getElementById(elementId);
+            statusElement.textContent = message;
+            statusElement.className = `status-message ${type} show`;
+            
+            setTimeout(() => {
+                statusElement.classList.remove('show');
+            }, 3000);
+        }
+
+        function saveEmployeeData() {
+            localStorage.setItem('employeeName', document.getElementById('employeeName').value);
+            localStorage.setItem('employeeId', document.getElementById('employeeId').value);
+            localStorage.setItem('supervisorId', document.getElementById('supervisorId').value);
+        }
+
+        function restoreEmployeeData() {
+            const savedName = localStorage.getItem('employeeName');
+            const savedId = localStorage.getItem('employeeId');
+            const savedSupervisorId = localStorage.getItem('supervisorId');
+            
+            if (savedName) document.getElementById('employeeName').value = savedName;
+            if (savedId) document.getElementById('employeeId').value = savedId;
+            if (savedSupervisorId) document.getElementById('supervisorId').value = savedSupervisorId;
+        }
+
+        function restoreSupervisorData() {
+            const savedName = localStorage.getItem('supervisorName');
+            const savedId = localStorage.getItem('supervisorIdSaved');
+            
+            if (savedName) document.getElementById('supervisorName').value = savedName;
+            if (savedId) document.getElementById('supervisorIdField').value = savedId;
+        }
+
+        // Auto-save supervisor data
+        document.getElementById('supervisorName').addEventListener('input', function() {
+            localStorage.setItem('supervisorName', this.value);
+        });
+
+        document.getElementById('supervisorIdField').addEventListener('input', function() {
+            localStorage.setItem('supervisorIdSaved', this.value);
+            setTimeout(() => {
+                updateNotifications();
+                updateSupervisorEntries();
+            }, 500);
+        });
+
+        // Initialize app
+        const savedRole = localStorage.getItem('userRole');
+        if (savedRole) {
+            selectRole(savedRole);
+        }
+
+        // Refresh notifications and entries periodically
+        setInterval(() => {
+            if (currentRole === 'supervisor') {
+                updateNotifications();
+                updateSupervisorEntries();
+            }
+        }, 10000); // Every 10 seconds
+    </script>
+</body>
+</html>
